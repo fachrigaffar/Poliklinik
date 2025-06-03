@@ -40,7 +40,7 @@ class RegisteredUserController extends Controller
         ]);
 
         // Cek apakah pasien dengan no_ktp tersebut sudah ada
-        $existingPatient = User::where('no_ktp', $request->no_ktp)->first();
+        $existingPatient = User::where('nik', $request->nik)->first();
 
         if ($existingPatient) {
             throw ValidationException::withMessages([
@@ -60,11 +60,11 @@ class RegisteredUserController extends Controller
             'nama' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'pasien', // Set role sebagai pasien
             'alamat' => $request->alamat,
             'no_hp' => $request->no_hp,
             'nik' => $request->nik,
             'no_rm' => $no_rm,
-            'role' => 'pasien', // Set role sebagai pasien
 
         ]);
 

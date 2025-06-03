@@ -18,9 +18,9 @@
 
         <!-- No KTP -->
         <div class="mt-4">
-            <x-input-label for="no_ktp" :value="__('Nomor Induk Kependudukan')" />
-            <x-text-input id="no_ktp" class="block mt-1 w-full" type="text" name="no_ktp" :value="old('no_ktp')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('no_ktp')" class="mt-2" />
+            <x-input-label for="nik" :value="__('Nomor Induk Kependudukan')" />
+            <x-text-input id="nik" class="block mt-1 w-full" type="text" name="nik" :value="old('nik')" required autofocus autocomplete="name" />
+            <x-input-error :messages="$errors->get('nik')" class="mt-2" />
         </div>
 
         <!-- No Hp -->
