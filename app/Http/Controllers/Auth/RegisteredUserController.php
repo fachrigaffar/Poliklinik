@@ -36,19 +36,42 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'alamat' => ['required', 'string', 'max:255'],
             'no_hp' => ['required', 'string', 'max:15'],
-            'no_ktp' => ['required', 'string', 'max:16', 'unique:'.User::class],
+            'nik' => ['required', 'string', 'max:16', 'unique:'.User::class],
         ]);
 
+        // Cek apakah pasien dengan no_ktp tersebut sudah ada
+        $existingPatient = User::where('no_ktp', $request->no_ktp)->first();
+
+        if ($existingPatient) {
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        $currentYearMonth = date('Ym'); // Format: 202411 untuk November 2024
+
+        // Hitung jumlah pasien yang terdaftar dengan tahun dan bulan yang sama
+        $patientCount = User::where('no_rm', 'like', $currentYearMonth . '-%')->count();
+
+        // Buat no_rm dengan format tahun-bulan-urutan
+        $no_rm = $currentYearMonth . '-' . str_pad($patientCount + 1, 3, '0', STR_PAD_LEFT);
+
         $user = User::create([
-            'name' => $request->name,
+            'nama' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'alamat' => $request->alamat,
+            'no_hp' => $request->no_hp,
+            'nik' => $request->nik,
+            'no_rm' => $no_rm,
+            'role' => 'pasien', // Set role sebagai pasien
+
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('pasien.dashboard', absolute: false));
     }
 }
