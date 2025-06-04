@@ -86,7 +86,7 @@
         </div>
 
         <footer class="w-full py-6 mt-8 text-center text-gray-500 dark:text-gray-400 text-sm lg:max-w-4xl max-w-[335px]">
-            &copy; {{ date('Y') }} Poliklinik BK. All rights reserved.
+            &copy; {{ date('Y') }} Poliklinik BK
         </footer>
 
     </body>
