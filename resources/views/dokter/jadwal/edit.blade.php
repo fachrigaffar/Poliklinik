@@ -21,14 +21,14 @@
 
                         <form action="{{ route('dokter.jadwal.update', $jadwal->id) }}" method="POST" class="space-y-6">
                             @csrf
-                            @method('PUT') {{-- Sesuai kode controller Anda, bisa juga PATCH --}}
+                            @method('PUT') {{-- Atau PATCH --}}
 
                             {{-- Hari --}}
                             <div>
                                 <label for="hari" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Hari</label>
-                                <select id="hari" name="hari" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <select id="hari" name="hari" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                                     <option value="">Pilih Hari</option>
-                                    @foreach($hariOptions as $hariOption) {{-- $hariOptions dari controller --}}
+                                    @foreach($hariOptions as $hariOption)
                                         <option value="{{ $hariOption }}" {{ old('hari', $jadwal->hari) == $hariOption ? 'selected' : '' }}>{{ $hariOption }}</option>
                                     @endforeach
                                 </select>
@@ -38,20 +38,69 @@
                             </div>
 
                             {{-- Jam Mulai --}}
+                            @php
+                                $jamMulaiParts = explode(':', old('jam_mulai', $jadwal->jam_mulai ?? '00:00'));
+                                $selectedJamMulaiJam = $jamMulaiParts[0] ?? '00';
+                                $selectedJamMulaiMenit = $jamMulaiParts[1] ?? '00';
+                            @endphp
                             <div>
-                                <label for="jam_mulai" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Jam Mulai</label>
-                                <input type="time" name="jam_mulai" id="jam_mulai" value="{{ old('jam_mulai', \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i')) }}"
-                                       class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-                                @error('jam_mulai')
-                                    <p class="mt-1 text-xs text-red-600 dark:text-red-500">{{ $message }}</p>
-                                @enderror
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Jam Mulai</label>
+                                <div class="flex gap-4">
+                                    <div class="flex-1">
+                                        <label for="jam_mulai_jam" class="sr-only">Jam Mulai (Jam)</label>
+                                        <select id="jam_mulai_jam" name="jam_mulai_jam" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                            <option value="">Jam</option>
+                                            @foreach($timeOptions['hours'] as $hour)
+                                                <option value="{{ $hour }}" {{ $selectedJamMulaiJam == $hour ? 'selected' : '' }}>{{ $hour }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center font-semibold dark:text-gray-100">:</div>
+                                    <div class="flex-1">
+                                        <label for="jam_mulai_menit" class="sr-only">Jam Mulai (Menit)</label>
+                                        <select id="jam_mulai_menit" name="jam_mulai_menit" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                            <option value="">Menit</option>
+                                            @foreach($timeOptions['minutes'] as $minute)
+                                                <option value="{{ $minute }}" {{ $selectedJamMulaiMenit == $minute ? 'selected' : '' }}>{{ $minute }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                @error('jam_mulai_jam') <p class="mt-1 text-xs text-red-600 dark:text-red-500">{{ $message }}</p> @enderror
+                                @error('jam_mulai_menit') <p class="mt-1 text-xs text-red-600 dark:text-red-500">{{ $message }}</p> @enderror
                             </div>
 
                             {{-- Jam Selesai --}}
+                             @php
+                                $jamSelesaiParts = explode(':', old('jam_selesai', $jadwal->jam_selesai ?? '00:00'));
+                                $selectedJamSelesaiJam = $jamSelesaiParts[0] ?? '00';
+                                $selectedJamSelesaiMenit = $jamSelesaiParts[1] ?? '00';
+                            @endphp
                             <div>
-                                <label for="jam_selesai" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Jam Selesai</label>
-                                <input type="time" name="jam_selesai" id="jam_selesai" value="{{ old('jam_selesai', \Carbon\Carbon::parse($jadwal->jam_selesai)->format('H:i')) }}"
-                                       class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Jam Selesai</label>
+                                <div class="flex gap-4">
+                                    <div class="flex-1">
+                                        <label for="jam_selesai_jam" class="sr-only">Jam Selesai (Jam)</label>
+                                        <select id="jam_selesai_jam" name="jam_selesai_jam" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                            <option value="">Jam</option>
+                                            @foreach($timeOptions['hours'] as $hour)
+                                                <option value="{{ $hour }}" {{ $selectedJamSelesaiJam == $hour ? 'selected' : '' }}>{{ $hour }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center font-semibold dark:text-gray-100">:</div>
+                                    <div class="flex-1">
+                                        <label for="jam_selesai_menit" class="sr-only">Jam Selesai (Menit)</label>
+                                        <select id="jam_selesai_menit" name="jam_selesai_menit" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                            <option value="">Menit</option>
+                                            @foreach($timeOptions['minutes'] as $minute)
+                                                <option value="{{ $minute }}" {{ $selectedJamSelesaiMenit == $minute ? 'selected' : '' }}>{{ $minute }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                @error('jam_selesai_jam') <p class="mt-1 text-xs text-red-600 dark:text-red-500">{{ $message }}</p> @enderror
+                                @error('jam_selesai_menit') <p class="mt-1 text-xs text-red-600 dark:text-red-500">{{ $message }}</p> @enderror
                                 @error('jam_selesai')
                                     <p class="mt-1 text-xs text-red-600 dark:text-red-500">{{ $message }}</p>
                                 @enderror
@@ -60,8 +109,7 @@
                             {{-- Status --}}
                             <div>
                                 <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Status</label>
-                                <select id="status" name="status" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    {{-- Menggunakan nilai '1' untuk true (Aktif) dan '0' untuk false (Tidak Aktif) --}}
+                                <select id="status" name="status" class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                                     <option value="1" {{ old('status', $jadwal->status ? '1' : '0') == '1' ? 'selected' : '' }}>Aktif</option>
                                     <option value="0" {{ old('status', $jadwal->status ? '1' : '0') == '0' ? 'selected' : '' }}>Tidak Aktif</option>
                                 </select>
@@ -71,7 +119,7 @@
                             </div>
 
                             @error('jadwal_overlap')
-                                <div class="p-3 mb-4 text-sm text-red-800 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-300" role="alert">
+                                <div class="p-3 text-sm text-red-800 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-300" role="alert">
                                     {{ $message }}
                                 </div>
                             @enderror

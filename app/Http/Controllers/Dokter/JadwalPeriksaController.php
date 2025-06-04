@@ -7,53 +7,91 @@ use Illuminate\Http\Request;
 use App\Models\Jadwal_periksa; // Pastikan path model ini benar
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon; // Import Carbon
 
 class JadwalPeriksaController extends Controller
 {
-    // Opsi hari untuk dropdown
     protected $hariOptions = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+    // Helper untuk menghasilkan opsi jam dan menit
+    private function getTimeOptions()
+    {
+        $hours = [];
+        for ($h = 0; $h < 24; $h++) {
+            $hours[] = str_pad($h, 2, '0', STR_PAD_LEFT);
+        }
+
+        $minutes = [];
+        // Interval menit, misalnya per 15 menit
+        for ($m = 0; $m < 60; $m += 15) {
+            $minutes[] = str_pad($m, 2, '0', STR_PAD_LEFT);
+        }
+        // Atau per 30 menit
+        //  for ($m = 0; $m < 60; $m += 30) {
+        //      $minutes[] = str_pad($m, 2, '0', STR_PAD_LEFT);
+        //  }
+        
+        // Atau setiap menit jika diperlukan
+        // for ($m = 0; $m < 60; $m++) {
+        //     $minutes[] = str_pad($m, 2, '0', STR_PAD_LEFT);
+        // }
+
+
+        return ['hours' => $hours, 'minutes' => $minutes];
+    }
 
     public function index()
     {
         $jadwals = Jadwal_periksa::where('id_dokter', Auth::id())
-                                ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')") // Urutan hari yang benar
+                                ->orderByRaw("FIELD(hari, '".implode("', '", $this->hariOptions)."')")
                                 ->orderBy('jam_mulai')
                                 ->get();
-        return view('dokter.jadwal.index', compact('jadwals')); // Path view sesuai struktur Anda
+        return view('dokter.jadwal.index', compact('jadwals'));
     }
 
     public function create()
     {
         $hariOptions = $this->hariOptions;
-        return view('dokter.jadwal.create', compact('hariOptions')); // Path view sesuai struktur Anda
+        $timeOptions = $this->getTimeOptions();
+        return view('dokter.jadwal.create', compact('hariOptions', 'timeOptions'));
     }
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'hari' => ['required', Rule::in($this->hariOptions)],
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+            'jam_mulai_jam' => ['required', Rule::in($this->getTimeOptions()['hours'])],
+            'jam_mulai_menit' => ['required', Rule::in($this->getTimeOptions()['minutes'])],
+            'jam_selesai_jam' => ['required', Rule::in($this->getTimeOptions()['hours'])],
+            'jam_selesai_menit' => ['required', Rule::in($this->getTimeOptions()['minutes'])],
         ]);
+
+        $jamMulai = $request->jam_mulai_jam . ':' . $request->jam_mulai_menit;
+        $jamSelesai = $request->jam_selesai_jam . ':' . $request->jam_selesai_menit;
+
+        // Validasi after:jam_mulai secara manual karena formatnya sudah digabung
+        if (Carbon::parse($jamSelesai)->lte(Carbon::parse($jamMulai))) {
+            return back()->withErrors(['jam_selesai' => 'Jam selesai harus setelah jam mulai.'])->withInput();
+        }
 
         $idDokter = Auth::id();
 
         // Cek tumpang tindih jadwal
         $isOverlapping = Jadwal_periksa::where('id_dokter', $idDokter)
-            ->where('hari', $validatedData['hari'])
-            ->where(function ($query) use ($validatedData) {
-                $query->where(function ($q) use ($validatedData) {
-                    $q->where('jam_mulai', '<', $validatedData['jam_selesai'])
-                      ->where('jam_selesai', '>', $validatedData['jam_mulai']);
-                })->orWhere(function ($q) use ($validatedData) {
-                    $q->where('jam_mulai', '>=', $validatedData['jam_mulai'])
-                      ->where('jam_mulai', '<', $validatedData['jam_selesai']);
-                })->orWhere(function ($q) use ($validatedData) {
-                    $q->where('jam_selesai', '>', $validatedData['jam_mulai'])
-                      ->where('jam_selesai', '<=', $validatedData['jam_selesai']);
-                })->orWhere(function ($q) use ($validatedData) { // Mencakup sepenuhnya
-                    $q->where('jam_mulai', '<=', $validatedData['jam_mulai'])
-                      ->where('jam_selesai', '>=', $validatedData['jam_selesai']);
+            ->where('hari', $request->hari)
+            ->where(function ($query) use ($jamMulai, $jamSelesai) {
+                $query->where(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_mulai', '<', $jamSelesai)
+                      ->where('jam_selesai', '>', $jamMulai);
+                })->orWhere(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_mulai', '>=', $jamMulai)
+                      ->where('jam_mulai', '<', $jamSelesai);
+                })->orWhere(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_selesai', '>', $jamMulai)
+                      ->where('jam_selesai', '<=', $jamSelesai);
+                })->orWhere(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_mulai', '<=', $jamMulai)
+                      ->where('jam_selesai', '>=', $jamSelesai);
                 });
             })->exists();
 
@@ -63,10 +101,10 @@ class JadwalPeriksaController extends Controller
 
         Jadwal_periksa::create([
             'id_dokter' => $idDokter,
-            'hari' => $validatedData['hari'],
-            'jam_mulai' => $validatedData['jam_mulai'],
-            'jam_selesai' => $validatedData['jam_selesai'],
-            'status' => true, // Default status aktif (boolean true)
+            'hari' => $request->hari,
+            'jam_mulai' => $jamMulai,
+            'jam_selesai' => $jamSelesai,
+            'status' => true,
         ]);
 
         return redirect()->route('dokter.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan');
@@ -76,39 +114,48 @@ class JadwalPeriksaController extends Controller
     {
         $jadwal = Jadwal_periksa::where('id', $id)->where('id_dokter', Auth::id())->firstOrFail();
         $hariOptions = $this->hariOptions;
-        return view('dokter.jadwal.edit', compact('jadwal', 'hariOptions')); // Path view sesuai struktur Anda
+        $timeOptions = $this->getTimeOptions();
+        return view('dokter.jadwal.edit', compact('jadwal', 'hariOptions', 'timeOptions'));
     }
 
     public function update(Request $request, $id)
     {
         $jadwal = Jadwal_periksa::where('id', $id)->where('id_dokter', Auth::id())->firstOrFail();
 
-        $validatedData = $request->validate([
+        $request->validate([
             'hari' => ['required', Rule::in($this->hariOptions)],
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'status' => 'required|boolean', // Validasi status sebagai boolean (menerima true, false, 1, 0)
+            'jam_mulai_jam' => ['required', Rule::in($this->getTimeOptions()['hours'])],
+            'jam_mulai_menit' => ['required', Rule::in($this->getTimeOptions()['minutes'])],
+            'jam_selesai_jam' => ['required', Rule::in($this->getTimeOptions()['hours'])],
+            'jam_selesai_menit' => ['required', Rule::in($this->getTimeOptions()['minutes'])],
+            'status' => 'required|boolean',
         ]);
+
+        $jamMulai = $request->jam_mulai_jam . ':' . $request->jam_mulai_menit;
+        $jamSelesai = $request->jam_selesai_jam . ':' . $request->jam_selesai_menit;
+
+        if (Carbon::parse($jamSelesai)->lte(Carbon::parse($jamMulai))) {
+            return back()->withErrors(['jam_selesai' => 'Jam selesai harus setelah jam mulai.'])->withInput();
+        }
 
         $idDokter = Auth::id();
 
-        // Cek tumpang tindih jadwal, kecuali jadwal yang sedang diedit
         $isOverlapping = Jadwal_periksa::where('id_dokter', $idDokter)
-            ->where('hari', $validatedData['hari'])
+            ->where('hari', $request->hari)
             ->where('id', '!=', $jadwal->id)
-            ->where(function ($query) use ($validatedData) {
-                 $query->where(function ($q) use ($validatedData) {
-                    $q->where('jam_mulai', '<', $validatedData['jam_selesai'])
-                      ->where('jam_selesai', '>', $validatedData['jam_mulai']);
-                })->orWhere(function ($q) use ($validatedData) {
-                    $q->where('jam_mulai', '>=', $validatedData['jam_mulai'])
-                      ->where('jam_mulai', '<', $validatedData['jam_selesai']);
-                })->orWhere(function ($q) use ($validatedData) {
-                    $q->where('jam_selesai', '>', $validatedData['jam_mulai'])
-                      ->where('jam_selesai', '<=', $validatedData['jam_selesai']);
-                })->orWhere(function ($q) use ($validatedData) {
-                    $q->where('jam_mulai', '<=', $validatedData['jam_mulai'])
-                      ->where('jam_selesai', '>=', $validatedData['jam_selesai']);
+            ->where(function ($query) use ($jamMulai, $jamSelesai) {
+                 $query->where(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_mulai', '<', $jamSelesai)
+                      ->where('jam_selesai', '>', $jamMulai);
+                })->orWhere(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_mulai', '>=', $jamMulai)
+                      ->where('jam_mulai', '<', $jamSelesai);
+                })->orWhere(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_selesai', '>', $jamMulai)
+                      ->where('jam_selesai', '<=', $jamSelesai);
+                })->orWhere(function ($q) use ($jamMulai, $jamSelesai) {
+                    $q->where('jam_mulai', '<=', $jamMulai)
+                      ->where('jam_selesai', '>=', $jamSelesai);
                 });
             })->exists();
 
@@ -117,10 +164,10 @@ class JadwalPeriksaController extends Controller
         }
 
         $jadwal->update([
-            'hari' => $validatedData['hari'],
-            'jam_mulai' => $validatedData['jam_mulai'],
-            'jam_selesai' => $validatedData['jam_selesai'],
-            'status' => (bool)$validatedData['status'], // Pastikan disimpan sebagai boolean
+            'hari' => $request->hari,
+            'jam_mulai' => $jamMulai,
+            'jam_selesai' => $jamSelesai,
+            'status' => (bool)$request->status,
         ]);
 
         return redirect()->route('dokter.jadwal.index')->with('success', 'Jadwal berhasil diperbarui');
@@ -129,20 +176,17 @@ class JadwalPeriksaController extends Controller
     public function destroy($id)
     {
         $jadwal = Jadwal_periksa::where('id', $id)->where('id_dokter', Auth::id())->firstOrFail();
-        // Pertimbangkan pengecekan pendaftaran aktif sebelum menghapus
         $jadwal->delete();
         return redirect()->route('dokter.jadwal.index')->with('success', 'Jadwal berhasil dihapus');
     }
 
-    public function updateStatus(Request $request, Jadwal_periksa $jadwal) // Menggunakan Route Model Binding
+    public function updateStatus(Request $request, Jadwal_periksa $jadwal)
     {
         if ($jadwal->id_dokter !== Auth::id()) {
             abort(403, 'Akses ditolak.');
         }
-
-        $jadwal->status = !$jadwal->status; // Toggle nilai boolean status
+        $jadwal->status = !$jadwal->status;
         $jadwal->save();
-
         return redirect()->route('dokter.jadwal.index')->with('success', 'Status jadwal berhasil diperbarui.');
     }
 }
