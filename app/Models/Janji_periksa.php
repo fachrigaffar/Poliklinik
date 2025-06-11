@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+
 class Janji_periksa extends Model
 {
     use HasFactory;
@@ -20,7 +21,7 @@ class Janji_periksa extends Model
     {
         return $this->belongsTo(Pasien::class, 'id_pasien');
     }
-    
+
     public function jadwalPeriksa(): BelongsTo
     {
         return $this->belongsTo(Jadwal_periksa::class, 'id_jadwal_periksa');

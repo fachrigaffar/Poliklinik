@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Jadwal_periksa;
+use App\Models\Janji_periksa;
 
 class User extends Authenticatable
 {
@@ -29,6 +31,16 @@ class User extends Authenticatable
         'poli',
     ];
 
+    public function JadwalPeriksas()
+    {
+        return $this->hasMany(Jadwal_periksa::class, 'id_dokter', 'id');
+    }
+
+    public function JanjiPeriksas()
+    {
+        return $this->hasMany(Janji_periksa::class, 'id_pasien', 'id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -51,4 +63,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
 }

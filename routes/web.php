@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\Dokter\ObatController;
 use App\Http\Controllers\Dokter\JadwalPeriksaController;
+use App\Http\Controllers\Dokter\PemeriksaanController;
+use App\Http\Controllers\Pasien\JanjiPeriksaController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,7 +50,10 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
         return view('pasien.dashboard');
     })->name('pasien.dashboard');
 
-
+    Route::prefix('janji-periksa')->group(function () {
+        Route::get('/', [JanjiPeriksaController::class, 'index'])->name('pasien.janji-periksa.index');
+        Route::post('/', [JanjiPeriksaController::class, 'store'])->name('pasien.janji-periksa.store');
+    });
 });
 
 require __DIR__.'/auth.php';

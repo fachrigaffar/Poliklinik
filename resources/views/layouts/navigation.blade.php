@@ -31,6 +31,9 @@
                         <x-nav-link :href="route('pasien.dashboard')" :active="request()->routeIs('pasien.dashboard')">
                             {{ __('Dashboard') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('pasien.janji-periksa.index')" :active="request()->routeIs('pasien.janji.index')">
+                            {{ __('Janji Periksa') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
