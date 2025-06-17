@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 class Janji_periksa extends Model
@@ -17,9 +19,9 @@ class Janji_periksa extends Model
         'no_antrian',
     ];
 
-    public function pasien():BelongsTo
+    public function pasien(): BelongsTo
     {
-        return $this->belongsTo(Pasien::class, 'id_pasien');
+        return $this->belongsTo(User::class, 'id_pasien');
     }
 
     public function jadwalPeriksa(): BelongsTo

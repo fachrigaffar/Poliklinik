@@ -31,7 +31,13 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->group(function () 
         Route::get('/{id}/edit', [JadwalPeriksaController::class, 'edit'])->name('dokter.jadwal.edit');
         Route::put('/{id}', [JadwalPeriksaController::class, 'update'])->name('dokter.jadwal.update');
         Route::delete('/{id}', [JadwalPeriksaController::class, 'destroy'])->name('dokter.jadwal.destroy');
-
         Route::patch('/{jadwal}/status', [JadwalPeriksaController::class, 'updateStatus'])->name('dokter.jadwal.status');
     });
+
+    Route::prefix('memeriksa')->group(function () {
+        Route::get('/', [PemeriksaanController::class, 'index'])->name('dokter.memeriksa.index');
+        Route::get('/{janjiPeriksa}', [PemeriksaanController::class, 'periksa'])->name('dokter.memeriksa.form');
+        Route::post('/{janjiPeriksa}', [PemeriksaanController::class, 'simpanPemeriksaan'])->name('dokter.memeriksa.simpan');
+    });
+
 });
