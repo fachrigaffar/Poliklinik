@@ -103,4 +103,36 @@ class ObatController extends Controller
 
         return redirect()->route('dokter.obat.index');
     }
+
+    public function restoreIndex()
+    {
+        $deletedObats = Obat::onlyTrashed()->get();
+        return view('dokter.obat.restore')->with([
+            'deletedObats' => $deletedObats,
+        ]);
+    }
+
+    /**
+     * Restore the specified soft deleted resource.
+     */
+    public function restore($id)
+    {
+        $obat = Obat::onlyTrashed()->findOrFail($id);
+        $obat->restore();
+
+        return redirect()->route('dokter.obat.index')
+                         ->with('status', 'obat-restored');
+    }
+
+    /**
+     * Permanently delete the specified resource.
+     */
+    public function forceDelete($id)
+    {
+        $obat = Obat::onlyTrashed()->findOrFail($id);
+        $obat->forceDelete();
+
+        return redirect()->route('dokter.obat.index')
+                         ->with('status', 'obat-force-deleted');
+    }
 }

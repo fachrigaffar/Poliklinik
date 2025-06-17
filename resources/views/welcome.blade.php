@@ -53,7 +53,7 @@
             <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
                 <!-- Konten Utama Beranda Poliklinik -->
                 <div class="text-[13px] leading-[20px] flex-1 p-6 pb-12 lg:p-20 bg-white dark:bg-gray-800 dark:text-gray-100 shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] rounded-bl-lg rounded-br-lg lg:rounded-tl-lg lg:rounded-br-none">
-                    <h1 class="mb-4 text-3xl font-semibold text-gray-900 dark:text-white lg:text-4xl">Selamat Datang di Poliklinik BK</h1>
+                    <h1 class="mb-4 text-3xl font-semibold text-gray-900 dark:text-white lg:text-4xl">Selamat Datang di Poliklinik</h1>
                     <p class="mb-6 text-gray-700 dark:text-gray-300 lg:text-lg">
                         Kami menyediakan pelayanan kesehatan terpadu dengan dokter-dokter berpengalaman dan fasilitas modern untuk Anda dan keluarga.
                     </p>
@@ -76,8 +76,8 @@
 
                 <!-- Gambar Sisi Kanan -->
                 <div class="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-gray-700 dark:to-gray-800 relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg aspect-[335/376] lg:aspect-auto w-full lg:w-[438px] shrink-0 overflow-hidden flex items-center justify-center">
-                    <img src="https://placehold.co/600x700/3B82F6/FFFFFF?text=Poliklinik\nBK&font=instrument-sans"
-                         alt="Poliklinik BK"
+                    <img src="https://placehold.co/600x700/3B82F6/FFFFFF?text=Poliklinik&font=instrument-sans"
+                         alt="Poliklinik"
                          class="object-cover w-full h-full transition-all duration-750 delay-300 opacity-100 starting:opacity-0 starting:translate-y-6"
                          onerror="this.onerror=null;this.src='https://placehold.co/600x700/cccccc/FFFFFF?text=Image+Not+Found&font=sans';" />
                     <div class="absolute inset-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"></div>
@@ -86,7 +86,7 @@
         </div>
 
         <footer class="w-full py-6 mt-8 text-center text-gray-500 dark:text-gray-400 text-sm lg:max-w-4xl max-w-[335px]">
-            &copy; {{ date('Y') }} Poliklinik BK
+            &copy; {{ date('Y') }} Poliklinik
         </footer>
 
     </body>
