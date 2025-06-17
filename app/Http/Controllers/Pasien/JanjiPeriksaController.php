@@ -37,6 +37,7 @@ class JanjiPeriksaController extends Controller
     public function create()
     {
         //
+
     }
 
     /**

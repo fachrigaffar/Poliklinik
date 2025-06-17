@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nama_obat');
             $table->string('kemasan', 50);
             $table->integer('harga');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

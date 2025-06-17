@@ -14,7 +14,7 @@ class DokterSeeder extends Seeder
      */
     public function run(): void
     {
-        $dokters = [
+        $users = [
             [
                 'nama' => 'Dr. Budi Santoso, Sp.PD',
                 'email' => 'budi.santoso@klinik.com',
@@ -65,10 +65,22 @@ class DokterSeeder extends Seeder
                 'no_hp' => '081234567894',
                 'poli' => 'THT',
             ],
+            [
+                'nama' => 'fachri gaffar',
+                'email' => 'fachri@gmail.com',
+                'password' => Hash::make('fachri123'),
+                'role' => 'pasien',
+                'alamat' => 'Jl. Mawar No. 10, Jakarta Selatan',
+                'nik' => '3175062505800006',
+                'no_hp' => '081234567895',
+                'no_rm' => 'RM001',
+                'poli' => null,
+            ],
+
         ];
 
-        foreach ($dokters as $dokter) {
-            User::create($dokter);
+        foreach ($users as $user) {
+            User::create($user);
         }
     }
 }
