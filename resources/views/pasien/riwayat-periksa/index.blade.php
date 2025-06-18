@@ -47,7 +47,6 @@
                                             {{ $janjiPeriksa->no_antrian }}
                                         </td>
                                         <td class="px-6 py-4">
-                                            {{-- REVISI: Mengubah gaya status agar konsisten --}}
                                             @if ($janjiPeriksa->periksa)
                                                 <span class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-md">
                                                     Selesai
@@ -60,7 +59,7 @@
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             <button @click="selectedJanji = {{ json_encode($janjiPeriksa->load(['pasien', 'jadwalPeriksa.dokter', 'periksa.detailPeriksas.obat'])) }}; openModal = true"
-                                                    class="px-6 py-2 text-sm font-medium text-white bg-blue-400 rounded-lg hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-600">
+                                                    class="px-4 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                                 Detail
                                             </button>
                                         </td>

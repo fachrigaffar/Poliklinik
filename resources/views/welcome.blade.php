@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Poliklinik BK</title> <!-- Judul diubah -->
+        <title>Poliklinik</title> <!-- Judul diubah -->
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
