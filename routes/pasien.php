@@ -17,6 +17,5 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
 
     Route::prefix('riwayat-periksa')->group(function(){
         Route::get('/', [RiwayatPeriksaController::class, 'index'])->name('pasien.riwayat-periksa.index');
-        Route::get('/{janjiPeriksa}', [RiwayatPeriksaController::class, 'show'])->name('detail');
     });
 });
