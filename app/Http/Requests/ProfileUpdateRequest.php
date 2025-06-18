@@ -14,17 +14,26 @@ class ProfileUpdateRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
-            ],
-        ];
+{
+    $rules = [
+        'nama' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255',
+                   Rule::unique('users')->ignore($this->user()->id)],
+        'alamat' => ['required', 'string', 'max:255'],
+        'nik' => ['required', 'string', 'size:16'],
+        'no_hp' => ['required', 'string', 'max:15'],
+    ];
+
+    // Validasi khusus untuk dokter
+    if ($this->user()->role === 'dokter') {
+        $rules['id_poli'] = ['nullable', 'exists:polis,id'];
     }
+
+    // Validasi khusus untuk pasien
+    if ($this->user()->role === 'pasien') {
+        $rules['no_rm'] = ['nullable', 'string', 'max:16'];
+    }
+
+    return $rules;
+}
 }

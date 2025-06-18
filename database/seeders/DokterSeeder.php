@@ -10,34 +10,23 @@ use App\Models\Poli;
 
 class DokterSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $polis = [
-            ['nama_poli' => 'Penyakit Dalam', 'deskripsi' => 'Poli khusus penyakit dalam'],
-            ['nama_poli' => 'Anak', 'deskripsi' => 'Poli khusus anak-anak'],
-            ['nama_poli' => 'Kebidanan dan Kandungan', 'deskripsi' => 'Poli kebidanan dan kandungan'],
-            ['nama_poli' => 'Mata', 'deskripsi' => 'Poli spesialis mata'],
-            ['nama_poli' => 'THT', 'deskripsi' => 'Poli THT'],
-            ['nama_poli' => 'Gigi', 'deskripsi' => 'Poli gigi dan mulut'],
-        ];
+        // Pastikan data poli sudah ada
+        $this->createDefaultPolisIfNotExist();
 
-        foreach ($polis as $poli) {
-            Poli::firstOrCreate(['nama_poli' => $poli['nama_poli']], $poli);
+        // Ambil ID poli yang sudah ada dengan pengecekan null
+        $poliPenyakitDalam = Poli::where('nama_poli', 'Penyakit Dalam')->first()?->id;
+        $poliAnak = Poli::where('nama_poli', 'Anak')->first()?->id;
+        $poliGigi = Poli::where('nama_poli', 'Gigi')->first()?->id;
+
+        // Validasi jika poli tidak ditemukan
+        if (!$poliPenyakitDalam || !$poliAnak || !$poliGigi) {
+            throw new \Exception('Data poli tidak lengkap. Harap jalankan PoliSeeder terlebih dahulu.');
         }
 
-        // Get poli IDs for reference
-        $poliPenyakitDalam = Poli::where('nama_poli', 'Penyakit Dalam')->first();
-        $poliAnak = Poli::where('nama_poli', 'Anak')->first();
-        $poliKebidanan = Poli::where('nama_poli', 'Kebidanan dan Kandungan')->first();
-        $poliMata = Poli::where('nama_poli', 'Mata')->first();
-        $poliTHT = Poli::where('nama_poli', 'THT')->first();
-        $poliGigi = Poli::where('nama_poli', 'Gigi')->first();
-
         $users = [
-            // Doctors
+            // Dokter Penyakit Dalam
             [
                 'nama' => 'Dr. Budi Santoso, Sp.PD',
                 'email' => 'budi.santoso@klinik.com',
@@ -46,9 +35,11 @@ class DokterSeeder extends Seeder
                 'alamat' => 'Jl. Pahlawan No. 123, Jakarta Selatan',
                 'nik' => '3175062505800001',
                 'no_hp' => '081234567890',
-                'id_poli' => $poliPenyakitDalam->id,
+                'id_poli' => $poliPenyakitDalam,
                 'no_rm' => null,
             ],
+
+            // Dokter Anak
             [
                 'nama' => 'Dr. Siti Rahayu, Sp.A',
                 'email' => 'siti.rahayu@klinik.com',
@@ -57,61 +48,57 @@ class DokterSeeder extends Seeder
                 'alamat' => 'Jl. Anggrek No. 45, Jakarta Pusat',
                 'nik' => '3175064610790002',
                 'no_hp' => '081234567891',
-                'id_poli' => $poliAnak->id,
+                'id_poli' => $poliAnak,
                 'no_rm' => null,
             ],
+
+            // Dokter Gigi
             [
-                'nama' => 'Dr. Ahmad Wijaya, Sp.OG',
+                'nama' => 'Dr. Ahmad Wijaya, Sp.KG',
                 'email' => 'ahmad.wijaya@klinik.com',
                 'password' => Hash::make('dokter123'),
                 'role' => 'dokter',
                 'alamat' => 'Jl. Melati No. 78, Jakarta Barat',
                 'nik' => '3175061505780003',
                 'no_hp' => '081234567892',
-                'id_poli' => $poliKebidanan->id,
+                'id_poli' => $poliGigi,
                 'no_rm' => null,
             ],
-            [
-                'nama' => 'Dr. Rina Putri, Sp.M',
-                'email' => 'rina.putri@klinik.com',
-                'password' => Hash::make('dokter123'),
-                'role' => 'dokter',
-                'alamat' => 'Jl. Dahlia No. 32, Jakarta Timur',
-                'nik' => '3175062708850004',
-                'no_hp' => '081234567893',
-                'id_poli' => $poliMata->id,
-                'no_rm' => null,
-            ],
-            [
-                'nama' => 'Dr. Doni Pratama, Sp.THT',
-                'email' => 'doni.pratama@klinik.com',
-                'password' => Hash::make('dokter123'),
-                'role' => 'dokter',
-                'alamat' => 'Jl. Kenanga No. 56, Jakarta Utara',
-                'nik' => '3175061002820005',
-                'no_hp' => '081234567894',
-                'id_poli' => $poliTHT->id,
-                'no_rm' => null,
-            ],
-            // Patient
+
+            // Pasien
             [
                 'nama' => 'Fachri Gaffar',
                 'email' => 'fachri@gmail.com',
                 'password' => Hash::make('fachri123'),
                 'role' => 'pasien',
                 'alamat' => 'Jl. Mawar No. 10, Jakarta Selatan',
-                'nik' => '3175062505800007',
+                'nik' => '3175062505800004',
                 'no_hp' => '081234567895',
                 'no_rm' => 'RM001',
                 'id_poli' => null,
             ],
-
         ];
 
         foreach ($users as $user) {
             User::firstOrCreate(
                 ['email' => $user['email']],
                 $user
+            );
+        }
+    }
+
+    protected function createDefaultPolisIfNotExist(): void
+    {
+        $defaultPolis = [
+            'Penyakit Dalam' => 'Pelayanan kesehatan untuk penyakit dalam',
+            'Anak' => 'Pelayanan kesehatan untuk anak-anak',
+            'Gigi' => 'Pelayanan kesehatan gigi dan mulut'
+        ];
+
+        foreach ($defaultPolis as $nama => $deskripsi) {
+            Poli::firstOrCreate(
+                ['nama_poli' => $nama],
+                ['deskripsi' => $deskripsi]
             );
         }
     }
