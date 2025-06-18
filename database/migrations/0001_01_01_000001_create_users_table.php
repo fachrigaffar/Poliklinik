@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->enum('role', ['admin', 'pasien', 'dokter'])->default('pasien');
+            $table->foreignId('id_poli')->nullable()->constrained('polis')->nullOnDelete();
             $table->string('nama', 255);
             $table->string('email')->unique();
             $table->string('alamat', 255);
             $table->string('nik', 16)->unique();
             $table->string('no_hp', 15);
             $table->string('no_rm', 16)->nullable();
-            $table->string('poli', 255)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

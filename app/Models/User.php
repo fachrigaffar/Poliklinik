@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Jadwal_periksa;
 use App\Models\Janji_periksa;
+use App\Models\Poli;
 
 class User extends Authenticatable
 {
@@ -39,6 +40,11 @@ class User extends Authenticatable
     public function JanjiPeriksas()
     {
         return $this->hasMany(Janji_periksa::class, 'id_pasien', 'id');
+    }
+
+    public function poli()
+    {
+        return $this->belongsTo(Poli::class, 'id_poli');
     }
 
     /**
